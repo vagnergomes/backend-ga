@@ -17,15 +17,27 @@ class DispositivoServices{
           throw new Error(`Erro ao buscar Dispositivo: ${error.message}`);
         }
       };
+
+      static async getDispositivosProxies() {
+        try {
+          const conexao = new connection();
+          await conexao.conectar();
+          const rows = conexao.query('SELECT * FROM Dispositivo where proxy = 1');
+ 
+          return (await rows).recordsets;
+        } catch (error) {
+          throw new Error(`Erro ao buscar Dispositivo: ${error.message}`);
+        }
+      };
     
-      static async salvar(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo){
-        console.log(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo)
+      static async salvar(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy){
+        console.log("service",nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy)
         try{
           const conexao = new connection();
           await conexao.conectar();
-          const new_device =  new Dispositivo(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo);
+          const new_device =  new Dispositivo(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy);
           //const query = 'INSERT INTO Usuario (nome, email, senha) OUTPUT INSERTED.id Values(@nome,@email,@senha)';
-          const query = 'BEGIN TRANSACTION; INSERT INTO Dispositivo (nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo) Values(@nome,@local,@ip,@UDPport,@TCPport,@protocolo,@tipo,@ativo); SELECT SCOPE_IDENTITY() AS id; COMMIT;';
+          const query = 'BEGIN TRANSACTION; INSERT INTO Dispositivo (nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy) Values(@nome,@local,@ip,@UDPport,@TCPport,@protocolo,@tipo,@ativo,@proxy,@porta_proxy); SELECT SCOPE_IDENTITY() AS id; COMMIT;';
           const request = conexao.pool.request();
           request.input('nome', sql.NVarChar, new_device.nome);
           request.input('local', sql.NVarChar, new_device.local);
@@ -35,20 +47,22 @@ class DispositivoServices{
           request.input('protocolo', sql.NVarChar, new_device.protocolo);
           request.input('tipo', sql.NVarChar, new_device.tipo);
           request.input('ativo', sql.SmallInt, new_device.ativo);
-          console.log(query);
+          request.input('proxy', sql.SmallInt, new_device.proxy);
+          request.input('porta_proxy', sql.NVarChar, new_device.porta_proxy);
+
           const result = await request.query(query);
-          
+          console.log("result: ", result)
           return result.recordset[0].id;
         }catch(error){
           throw new Error(`Erro ao salvar: ${error.message}`)
         }
       };
 
-      static async atualizar(id, nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo){
+      static async atualizar(id, nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy){
         try{
             const conexao = new connection();
             await conexao.conectar();
-            const query = "UPDATE Dispositivo SET nome = @nome, local = @local, ip = @ip, UDPport = @UDPport, TCPport = @TCPport, protocolo = @protocolo, tipo = @tipo, ativo = @ativo WHERE id = @id";
+            const query = "UPDATE Dispositivo SET nome = @nome, local = @local, ip = @ip, UDPport = @UDPport, TCPport = @TCPport, protocolo = @protocolo, tipo = @tipo, ativo = @ativo, proxy = @proxy, porta_proxy = @porta_proxy WHERE id = @id";
 
             const request = conexao.pool.request();
             request.input('id', sql.Int, id);
@@ -60,6 +74,8 @@ class DispositivoServices{
             request.input('protocolo', sql.NVarChar, protocolo);
             request.input('tipo', sql.NVarChar, tipo);
             request.input('ativo', sql.SmallInt, ativo);
+            request.input('proxy', sql.SmallInt, proxy);
+            request.input('porta_proxy', sql.NVarChar, porta_proxy);
 
             const result = await request.query(query);
 

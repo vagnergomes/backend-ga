@@ -7,6 +7,7 @@ const cors = require('cors');
 const app = express();
 var path = require('path');
 const { userInfo } = require('os');
+require('./proxy/Server')
 
 const userRoutes = require('./routes/UserRoutes');
 const udpRoutes = require('./routes/UdpRoutes');
@@ -35,4 +36,5 @@ app.get('/noticias', (req,res)=>{
 
 app.listen(port, '0.0.0.0', () => {
     console.log('Rodando na porta '+port+'...');
+ 
 })

@@ -8,6 +8,7 @@ class UdpController {
 
         const comandoHex =  await DispositivoService.getComando(tipo_solicitacao, tipo, protocolo);
 
+        // condição do protocolo caso essa funcao seja chamada sem passar pelo router principal
         if(protocolo === "TCP"){
             res.status(200).json({ message: tipo, nome: nome, local: local, ip: ip, porta_udp: porta_udp, porta_tcp: porta_tcp, protocolo: protocolo, tipo: tipo });
         }

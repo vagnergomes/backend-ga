@@ -14,14 +14,14 @@ class DispositivoController {
 
   static async salvar(req, res){
     
-    const {nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo} = req.body;
-    console.log({nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo});
+    const {nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy} = req.body;
+    console.log({nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy});
     try{
       if (!nome || !local || !ip || !UDPport) {
         return res.status(400).json({ mensagem: 'Preencha os campos necessários.' });
       };
 
-      const dispositivoId = await DispositivoService.salvar(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo);
+      const dispositivoId = await DispositivoService.salvar(nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy);
       res.status(201).json({message: 'Dispositivo criado com sucesso', id: dispositivoId})
     }catch(error){
       res.status(500).json({ error: error.message});
@@ -31,14 +31,14 @@ class DispositivoController {
   static async atualizar(req, res){
 
     const  { id } = req.params;
-    const {nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo } = req.body;
+    const {nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy } = req.body;
     //console.log(id, nome, local, ip, UDPport);
     try{
       if( !id || !nome || !local || !ip || !protocolo || !tipo){
         return res.status(400).json({ mensagem: 'Preencha os campos necessários.'})
       }
 
-      const mensagem =  await DispositivoService.atualizar(id, nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo);
+      const mensagem =  await DispositivoService.atualizar(id, nome, local, ip, UDPport, TCPport, protocolo, tipo, ativo, proxy, porta_proxy);
       res.status(200).json({ mensagem });
     } catch (error) {
       res.status(500).json({ mensagem: error.message});

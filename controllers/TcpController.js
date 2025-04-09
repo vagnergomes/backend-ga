@@ -1,9 +1,13 @@
 const net = require('net');
+const DispositivoService = require('../services/DispositivoServices');
 
 class TcpController {
     // Envia o comando para a placa
     static async envia(req, res) {
-        const { comandoHex, nome, local, ip, porta_udp, porta_tcp, protocolo, tipo } = req.body;
+        const { tipo_solicitacao, nome, local, ip, porta_udp, porta_tcp, protocolo, tipo } = req.body;
+        //const comandoHex = "";
+
+        const comandoHex =  await DispositivoService.getComando(tipo_solicitacao, tipo, protocolo);
 
         try {
                 if (!comandoHex || !nome || !local || !ip || !porta_tcp) {
@@ -20,11 +24,11 @@ class TcpController {
                 
                     // Enviar comando
                     client.write(comandoBuffer);
-                    console.log(`Comando enviado: ${comandoBuffer.toString('hex').toUpperCase()}`);
+                    //console.log(`Comando enviado: ${comandoBuffer.toString('hex').toUpperCase()}`);
                 
                     // Definir timeout de resposta (3 segundos)
                     setTimeout(() => {
-                        console.log('Timeout atingido. Fechando conexão...');
+                        //console.log('Timeout atingido. Fechando conexão...');
                         client.destroy();
                     }, timeoutDuration);
                 });
@@ -33,7 +37,7 @@ class TcpController {
                 client.on('data', (data) => {
                     const resposta = data.toString('hex');
                     res.status(200).json({ message: `${resposta}`, nome: nome, local: local, ip: ip, porta_udp: porta_udp, porta_tcp: porta_tcp, protocolo: protocolo, tipo: tipo });
-                    console.log(`Resposta da placa: ${resposta.toUpperCase()}`);
+                    //console.log(`Resposta da placa: ${resposta.toUpperCase()}`);
                     client.destroy(); // Fecha a conexão após a resposta
                 });
 
@@ -43,7 +47,7 @@ class TcpController {
                     const erroMensagem = err.message || 'Erro desconhecido';
                     res.status(500).json({ message: `Falha: ${erroMensagem}`, nome: nome, local: local, ip: ip, porta_udp: porta_udp, porta_tcp: porta_tcp, protocolo: protocolo, tipo: tipo });
                     console.log(`Erro: ${erroMensagem}`);
-                    console.error(`Erro: ${erroMensagem}`);
+                    //console.error(`Erro: ${erroMensagem}`);
                     client.destroy(); // Fecha a conexão em caso de erro
                 });
 
